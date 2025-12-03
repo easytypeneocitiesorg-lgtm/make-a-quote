@@ -1,29 +1,23 @@
-import { initializeApp } from "firebase/app";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyC0Mhh0hEOOD04UsRCuo7CDAjVmtw_zRS4",
-  authDomain: "make-a-quote.firebaseapp.com",
-  projectId: "make-a-quote",
-  storageBucket: "make-a-quote.firebasestorage.app",
-  messagingSenderId: "1035902900878",
-  appId: "1:1035902900878:web:2f9d0ff314ebe4f79a07df",
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
 export default async function handler(req, res) {
   const { id } = req.query;
   if (!id) return res.status(400).send("No ID provided");
 
+  const projectId = "make-a-quote";
+  const apiKey = "AIzaSyC0Mhh0hEOOD04UsRCuo7CDAjVmtw_zRS4";
+
+  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/quotes/${id}?key=${apiKey}`;
+
   try {
-    const docRef = doc(db, "quotes", id);
-    const docSnap = await getDoc(docRef);
+    const response = await fetch(url);
+    if (!response.ok) {
+      if (response.status === 404) return res.status(404).send("Quote not found");
+      throw new Error("Firestore request failed");
+    }
 
-    if (!docSnap.exists()) return res.status(404).send("Quote not found");
-
-    const { text, imageBase64 } = docSnap.data();
+    const data = await response.json();
+    const fields = data.fields;
+    const text = fields.text.stringValue;
+    const imageBase64 = fields.imageBase64.stringValue;
 
     const html = `
 <!DOCTYPE html>
