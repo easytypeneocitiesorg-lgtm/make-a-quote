@@ -15,16 +15,15 @@
     import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
     import { v4 as uuidv4 } from "https://cdn.jsdelivr.net/npm/uuid@9.0.0/dist/esm-browser/index.js";
 
-    // Firebase config (replace with your own)
-   const firebaseConfig = {
-  apiKey: "AIzaSyC0Mhh0hEOOD04UsRCuo7CDAjVmtw_zRS4",
-  authDomain: "make-a-quote.firebaseapp.com",
-  projectId: "make-a-quote",
-  storageBucket: "make-a-quote.firebasestorage.app",
-  messagingSenderId: "1035902900878",
-  appId: "1:1035902900878:web:2f9d0ff314ebe4f79a07df" 
-};
-
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyC0Mhh0hEOOD04UsRCuo7CDAjVmtw_zRS4",
+      authDomain: "make-a-quote.firebaseapp.com",
+      projectId: "make-a-quote",
+      storageBucket: "make-a-quote.firebasestorage.app",
+      messagingSenderId: "1035902900878",
+      appId: "1:1035902900878:web:2f9d0ff314ebe4f79a07df"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -47,12 +46,12 @@
 
       const base64Image = canvas.toDataURL('image/png');
 
-      // Create unique ID and store in Firestore
+      // Store in Firestore
       const id = uuidv4();
       await setDoc(doc(db, "quotes", id), { text, imageBase64: base64Image });
 
-      // Return dynamic link
-      const url = `${window.location.origin}/quote.html?id=${id}`;
+      // Return dynamic link pointing to serverless function
+      const url = `${window.location.origin}/api/quote/${id}`;
       document.getElementById('result').innerHTML = `<a href="${url}" target="_blank">${url}</a>`;
     };
   </script>
