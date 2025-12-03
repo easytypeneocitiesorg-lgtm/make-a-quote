@@ -1,31 +1,31 @@
-import { initializeApp, getApps, cert } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { initializeApp } from "firebase/app";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 
-// Initialize Firebase Admin only once
-if (!getApps().length) {
-  initializeApp({
-    credential: cert({
-      // Let Vercel provide credentials via environment, or use application default
-      projectId: "make-a-quote"
-    }),
-    projectId: "make-a-quote"
-  });
-}
+const firebaseConfig = {
+  apiKey: "AIzaSyC0Mhh0hEOOD04UsRCuo7CDAjVmtw_zRS4",
+  authDomain: "make-a-quote.firebaseapp.com",
+  projectId: "make-a-quote",
+  storageBucket: "make-a-quote.firebasestorage.app",
+  messagingSenderId: "1035902900878",
+  appId: "1:1035902900878:web:2f9d0ff314ebe4f79a07df",
+};
 
-const db = getFirestore();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 export default async function handler(req, res) {
   const { id } = req.query;
   if (!id) return res.status(400).send("No ID provided");
 
-  const docRef = db.collection("quotes").doc(id);
-  const docSnap = await docRef.get();
+  try {
+    const docRef = doc(db, "quotes", id);
+    const docSnap = await getDoc(docRef);
 
-  if (!docSnap.exists) return res.status(404).send("Quote not found");
+    if (!docSnap.exists()) return res.status(404).send("Quote not found");
 
-  const { text, imageBase64 } = docSnap.data();
+    const { text, imageBase64 } = docSnap.data();
 
-  const html = `
+    const html = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -39,8 +39,12 @@ export default async function handler(req, res) {
   <img src="${imageBase64}" alt="Quote Image" />
 </body>
 </html>
-  `;
+    `;
 
-  res.setHeader("Content-Type", "text/html");
-  res.send(html);
+    res.setHeader("Content-Type", "text/html");
+    res.send(html);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
 }
