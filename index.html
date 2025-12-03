@@ -9,19 +9,51 @@
   <button id="generateBtn">Generate Quote</button>
   <p id="result"></p>
 
-  <script>
-    document.getElementById('generateBtn').onclick = async () => {
+  <!-- Firebase Web SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    import { v4 as uuidv4 } from "https://cdn.jsdelivr.net/npm/uuid@9.0.0/dist/esm-browser/index.js";
+
+    // Firebase config (replace with your own)
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "xxxx",
+      appId: "xxxx"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const generateBtn = document.getElementById('generateBtn');
+    generateBtn.onclick = async () => {
       const text = document.getElementById('quoteInput').value.trim();
       if (!text) return alert('Enter a quote first!');
-      
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text })
-      });
-      const data = await response.json();
-      document.getElementById('result').innerHTML = `<a href="${data.url}" target="_blank">${data.url}</a>`;
-    }
+
+      // Generate canvas image
+      const canvas = document.createElement('canvas');
+      canvas.width = 800;
+      canvas.height = 400;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#000';
+      ctx.font = '40px sans-serif';
+      ctx.fillText(text, 50, 200);
+
+      const base64Image = canvas.toDataURL('image/png');
+
+      // Create unique ID and store in Firestore
+      const id = uuidv4();
+      await setDoc(doc(db, "quotes", id), { text, imageBase64: base64Image });
+
+      // Return dynamic link
+      const url = `${window.location.origin}/quote.html?id=${id}`;
+      document.getElementById('result').innerHTML = `<a href="${url}" target="_blank">${url}</a>`;
+    };
   </script>
 </body>
 </html>
