@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Quote Generator</title>
+</head>
+<body>
+  <h1>Quote Generator</h1>
+  <input type="text" id="quoteInput" placeholder="Enter your quote" style="width:300px;">
+  <button id="generateBtn">Generate Quote</button>
+  <p id="result"></p>
+
+  <script>
+    document.getElementById('generateBtn').onclick = async () => {
+      const text = document.getElementById('quoteInput').value.trim();
+      if (!text) return alert('Enter a quote first!');
+      
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      const data = await response.json();
+      document.getElementById('result').innerHTML = `<a href="${data.url}" target="_blank">${data.url}</a>`;
+    }
+  </script>
+</body>
+</html>
