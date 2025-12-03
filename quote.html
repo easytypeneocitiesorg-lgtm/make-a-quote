@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Quote</title>
+  <meta id="og-title" property="og:title" content="" />
+  <meta id="og-image" property="og:image" content="" />
+  <meta property="og:type" content="website" />
+</head>
+<body>
+  <h1 id="quoteText"></h1>
+  <img id="quoteImage" alt="Quote Image" />
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "xxxx",
+      appId: "xxxx"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    if (!id) {
+      document.body.innerHTML = "<p>No ID provided</p>";
+    } else {
+      const docRef = doc(db, "quotes", id);
+      getDoc(docRef).then(docSnap => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          document.getElementById('quoteText').innerText = data.text;
+          document.getElementById('quoteImage').src = data.imageBase64;
+
+          // Set OG meta dynamically
+          document.getElementById('og-title').content = data.text;
+          document.getElementById('og-image').content = data.imageBase64;
+        } else {
+          document.body.innerHTML = "<p>Quote not found</p>";
+        }
+      });
+    }
+  </script>
+</body>
+</html>
