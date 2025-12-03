@@ -1,15 +1,11 @@
 {
   "name": "vercel-quote-app",
   "version": "1.0.0",
-  "description": "Simple Discord-embeddable quote generator",
-  "main": "index.js",
+  "description": "Discord-embeddable quote generator",
   "scripts": {
     "start": "vercel dev"
   },
-  "author": "Your Name",
-  "license": "MIT",
   "dependencies": {
-    "canvas": "^2.12.0",
     "firebase-admin": "^11.8.0",
     "uuid": "^9.0.0"
   }
